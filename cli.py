@@ -1,19 +1,41 @@
+"""
+cli.py — Command-line interface for the Kiyanka image resizing tool.
+"""
+
 import logging
-from logic import process_image  
-from models import *
 import cmd
+from logic import process_image  
+from models import ResizeInput, RESIZE_MODES
 
 logger = logging.getLogger(__name__)
 
+
 class KiyankaCLI(cmd.Cmd):
+    """
+    Interactive CLI tool for image resizing.
+
+    Commands:
+        - resize <path> <WxH> <mode_id> <ext>
+        - quit
+    """
     prompt = '>> '
     intro = '''Welcome to Kiyanka.
 A small tool to resize image for your needs.
 Type "help" to see available commands.'''
+
     def do_resize(self, import_parameters: str):
         """
         Resize Image: path width,height resize_mode extension
-        Example: resize C:/img.png 768,768 2 .webp
+
+        Example:
+            >> resize C:/img.png 768,768 2 .webp
+
+        resize modes:
+            0 thumbnail()
+            1 contain()
+            2 cover()
+            3 fit()
+            4 pad()
         """
         if not import_parameters.strip():
             print(
@@ -45,5 +67,7 @@ Example:
             print("Error:", e)
 
     def do_quit(self, line: str):
-        """Exit the CLI."""
+        """
+        Exit the CLI.
+        """
         return True
