@@ -20,7 +20,7 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
         - 'contain': scales down to fit inside box
         - 'cover': scales up and crops to fill box
         - 'fit': like cover but with alignment
-        - 'pad': adds padding to fit box (forces .png)
+        - 'pad': adds padding to fit box (forces .png if alpha < 255)
 
     Args:
         new_input (ResizeInput): dataclass with all resize settings
@@ -57,11 +57,11 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
             elif resize_mode == 'fit':
                 export_image = ImageOps.fit(src_image, out_size, method=resample_mode)
             else:  # pad
-                if src_image.mode != "RGBA":
+                if src_image.mode != "RGBA" and pad_color [3] < 255:
                     src_image = src_image.convert("RGBA")
+                    ext = '.png'
+                    logger.info('Extension overridden to .png for transparent pad mode')
                 export_image = ImageOps.pad(src_image, out_size,color=pad_color, method=resample_mode)
-                ext = '.png'
-                logger.info('Extension overridden to .png for transparent pad mode')
 
             # Attach filename to image
             export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}' + ext

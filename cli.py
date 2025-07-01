@@ -20,15 +20,32 @@ class KiyankaCLI(cmd.Cmd):
     """
     prompt = '>> '
     intro = '''Welcome to Kiyanka.
-A small tool to resize image for your needs.
-Type "help" to see available commands.'''
+A small tool to resize images for your needs.
+---------------------------------------------
+Available commands: resize, help, quit.
+---------------------------------------------
+Format of resize command: path width,height resize_mode extension
+Example:
+    >> resize C:/img.png 768,768 2 .jpg
+                    resize modes:
+                                 0 thumbnail()
+                                 1 contain()
+                                 2 cover()
+                                 3 fit()
+                                 4 pad()'''
 
     def do_resize(self, import_parameters: str):
         """
-        Resize Image: path width,height resize_mode extension
+        Resize an image using user-provided CLI arguments.
+
+        Arguments format:
+            <path> <width,height> <resize_mode_id> <file_extension>
+
+        If resize mode 4 (pad) is selected, the user will be prompted to enter
+        the padding color in RGBA format.
 
         Example:
-            >> resize C:/img.png 768,768 2 .webp
+            >> resize C:/img.png 768,768 4 .png
 
         resize modes:
             0 thumbnail()
@@ -37,9 +54,12 @@ Type "help" to see available commands.'''
             3 fit()
             4 pad()
         """
+        user_pad_color: tuple[int, int, int, int] = (0, 0, 0, 255)  # Default pad color
+
         if not import_parameters.strip():
             print(
 '''
+Please provide the arguments
 Example:
 ---------------------------------------------
 >> resize C:/img.png 768,768 2 .webp
@@ -51,18 +71,33 @@ Example:
                              4 pad()'''
                 )
             return
+
+        # Prompt for custom pad color if resize mode is pad (mode_id = 4)
+        if int(import_parameters.split()[2]) == 4:
+            color_input = input('''Enter pad color as R,G,B,A (e.g. 0,0,0,255): >> ''')
+            try:
+                r, g, b, alpha = map(int, color_input.split(','))
+                user_pad_color = (r, g, b, alpha)  
+            except ValueError:
+                print("Invalid color format. Using default black.")
+                user_pad_color = (0, 0, 0, 255)           
+
         try:
             parts = import_parameters.split()
             w = int(parts[1].split(',')[0])
             h = int(parts[1].split(',')[1])
+
+            # Create input dataclass with parsed values
             new_input = ResizeInput(
                 src_path = parts[0],
                 out_size = (w, h),
                 resize_mode = RESIZE_MODES[int(parts[2])],
                 save_extension = parts[3],
-                pad_color = (0, 0, 0, 0)
+                pad_color = user_pad_color
             )
+
             process_image(new_input)
+
         except Exception as e:
             print("Error:", e)
 
