@@ -4,6 +4,7 @@ cli.py — Command-line interface for the Kiyanka image resizing tool.
 
 import logging
 import cmd
+import re
 from logic import process_image  
 from models import ResizeInput, RESIZE_MODES
 
@@ -83,16 +84,18 @@ Example:
                 user_pad_color = (0, 0, 0, 255)           
 
         try:
-            parts = import_parameters.split()
-            w = int(parts[1].split(',')[0])
-            h = int(parts[1].split(',')[1])
-
-            # Create input dataclass with parsed values
+            parts: list[str] = re.split(r'\s*(?:,|\s)\s*',import_parameters)
+            _src_path: str = parts[0] 
+            _width: str = int(parts[1]) 
+            _height: str = int(parts[2]) 
+            _resize_mode: str = RESIZE_MODES[int(parts[3])] 
+            _save_extension: str = parts[4] 
+          
             new_input = ResizeInput(
-                src_path = parts[0],
-                out_size = (w, h),
-                resize_mode = RESIZE_MODES[int(parts[2])],
-                save_extension = parts[3],
+                src_path = _src_path,
+                out_size = (_width,_height),
+                resize_mode = _resize_mode,
+                save_extension = _save_extension,
                 pad_color = user_pad_color
             )
 
