@@ -1,6 +1,10 @@
 venv/ 
+.venv/
 .vscode
 __pycache__/
+*.py[cod]
+*.egg-info/
+.cache/
 *.pyc
 .DS_Store
 .idea/
