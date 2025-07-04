@@ -72,9 +72,11 @@ Example:
                              4 pad()'''
                 )
             return
+        
+        parts: list[str] = re.split(r'\s*(?:,|\s)\s*',import_parameters)
 
-        # Prompt for custom pad color if resize mode is pad (mode_id = 4)
-        if int(import_parameters.split()[2]) == 4:
+        # Prompt for custom pad color if resize mode is pad
+        if RESIZE_MODES[int(parts[3])] == 'pad':
             color_input = input('''Enter pad color as R,G,B,A (e.g. 0,0,0,255): >> ''')
             try:
                 r, g, b, alpha = map(int, color_input.split(','))
@@ -82,9 +84,7 @@ Example:
             except ValueError:
                 print("Invalid color format. Using default black.")
                 user_pad_color = (0, 0, 0, 255)           
-
         try:
-            parts: list[str] = re.split(r'\s*(?:,|\s)\s*',import_parameters)
             _src_path: str = parts[0] 
             _width: str = int(parts[1]) 
             _height: str = int(parts[2]) 
