@@ -64,7 +64,7 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
                 export_image = ImageOps.pad(src_image, out_size,color=pad_color, method=resample_mode)
 
             # Attach filename to image
-            export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}' + ext
+            export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}'+ f'_{resize_mode}' + ext
             return export_image
 
     except (OSError, ValueError) as ext:
