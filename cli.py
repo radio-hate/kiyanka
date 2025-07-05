@@ -5,27 +5,32 @@ cli.py — Command-line interface for the Kiyanka image resizing tool.
 import logging
 import cmd
 import re
-from logic import process_image  
-from models import ResizeInput, RESIZE_MODES
+from logic import resize_and_save, rembg_and_save  
+from models import ResizeInput, RembgInput, RESIZE_MODES
 
 logger = logging.getLogger(__name__)
 
 
 class KiyankaCLI(cmd.Cmd):
     """
-    Interactive CLI tool for image resizing.
+    Interactive CLI tool for:
+     -image resizing
+     -removing background
 
     Commands:
         - resize <path> <WxH> <mode_id> <ext>
+        - rembg <path>
         - quit
     """
     prompt = '>> '
     intro = '''Welcome to Kiyanka.
-A small tool to resize images for your needs.
+A small tool for:
+     -image resizing
+     -removing background
 ---------------------------------------------
-Available commands: resize, help, quit.
+Available commands: resize, rembg, help, quit.
 ---------------------------------------------
-Format of resize command: path width,height resize_mode extension
+- Format of resize command: path width,height resize_mode extension
 Example:
     >> resize C:/img.png 768,768 2 .jpg
                     resize modes:
@@ -33,7 +38,11 @@ Example:
                                  1 contain()
                                  2 cover()
                                  3 fit()
-                                 4 pad()'''
+                                 4 pad()
+
+- Format of rembg command: path
+Example:
+    >> rembg C:/img.png'''
 
     def do_resize(self, import_parameters: str):
         """
@@ -99,13 +108,51 @@ Example:
                 pad_color = user_pad_color
             )
 
-            process_image(new_input)
+            resize_and_save(new_input)
 
         except Exception as e:
-            print("Error:", e)
+            logger.error(f"Rembg failed: {e}")
 
-    def do_quit(self, line: str):
-        """
-        Exit the CLI.
-        """
-        return True
+def do_rembg(self, import_parameters: str):
+    """
+    CLI command to remove background from an image.
+
+    Expected input format:
+        <path_to_image>
+
+    Example:
+        >> rembg C:/images/photo.jpg
+
+    Args:
+        import_parameters (str): Raw user input string containing image path.
+    """
+    try:
+        # Split input by spaces and/or commas
+        parts: list[str] = re.split(r'\s*(?:,|\s)\s*', import_parameters)
+
+        # Validate presence of input
+        if not parts or not parts[0]:
+            print("No input path provided.")
+            return
+
+        _src_path: str = parts[0]
+
+        # Pack arguments into dataclass
+        new_input = RembgInput(
+            src_path=_src_path,
+            calculation_device='CPU'  # Placeholder for future GPU support
+        )
+
+        # Run removal and save result
+        output_path = rembg_and_save(new_input)
+        print(f"Saved: {output_path}")
+
+    except Exception as e:
+        logger.error(f"Rembg failed: {e}")
+
+
+def do_quit(self, line: str):
+    """
+    Exit the CLI.
+    """
+    return True

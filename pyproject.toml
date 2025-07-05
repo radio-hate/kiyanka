@@ -10,6 +10,7 @@ package-mode = false
 python = ">=3.10,<3.11"
 pillow = "^11.2.0"
 numpy = "<2.0"
+rembg = {extras = ["cpu"], version = "^2.0.66"}
 
 [build-system]
 requires = ["poetry-core"]

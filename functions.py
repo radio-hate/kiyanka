@@ -1,10 +1,11 @@
 """
-functions.py — Low-level image manipulation functions: resize and save.
+functions.py — Low-level image manipulation functions: resize, remove background and save.
 """
 
 from PIL import Image, ImageOps
 from PIL.Image import Image as PILImage
-import os, logging
+from rembg import remove
+import os, logging, io
 import models
 from models import * 
 
@@ -44,7 +45,7 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
         with Image.open(src_path) as src_image:
             logger.info(f'Imported image: {src_image.format}, {src_image.size}, {src_image.mode}')
             base_name: str = os.path.splitext(src_path)[0]
-            ext: str = save_extension
+            extention: str = save_extension
 
             # Resize logic per mode
             if resize_mode == 'thumbnail':
@@ -59,17 +60,59 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
             else:  # pad
                 if src_image.mode != "RGBA" and pad_color [3] < 255:
                     src_image = src_image.convert("RGBA")
-                    ext = '.png'
+                    extention: str = '.png'
                     logger.info('Extension overridden to .png for transparent pad mode')
                 export_image = ImageOps.pad(src_image, out_size,color=pad_color, method=resample_mode)
 
             # Attach filename to image
-            export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}'+ f'_{resize_mode}' + ext
+            export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}'+ f'_{resize_mode}' + extention
             return export_image
 
     except (OSError, ValueError) as ext:
         logger.info(f"Cannot resize: {src_path}, reason: {ext}")
         return False  
+
+def rembg_processing(new_input: RembgInput) -> bool | PILImage:
+    """
+    Removes background from an input image using rembg.
+
+    Args:
+        new_input (RembgInput): Dataclass containing:
+            - src_path: path to source image file.
+            - calculation_device: 'cpu' or 'cuda' (currently unused).
+
+    Returns:
+        PILImage: Image object with transparent background if successful.
+        bool: False if operation failed.
+    """
+    _src_path: str = new_input.src_path
+    _calculation_device: str = new_input.calculation_device  # Reserved for future device control
+    base_name, extention = os.path.splitext(_src_path)
+
+    try:
+        # Read input image as binary
+        with open(_src_path, 'rb') as image_with_bg:
+            src_image: bytes = image_with_bg.read()
+
+            # Run background removal
+            image_without_bg: bytes = remove(src_image)
+
+            # Decode result from bytes to PIL Image
+            export_image: PILImage = Image.open(io.BytesIO(image_without_bg))
+
+            # Ensure image has alpha channel for transparency
+            if export_image.mode != "RGBA":
+                export_image = export_image.convert("RGBA")
+                extention = '.png'
+                logger.info('Extension overridden to .png for transparent background')
+
+            # Set output filename
+            export_image.filename = base_name + '_no_bg' + extention
+            return export_image
+
+    except (OSError, ValueError) as ext:
+        logger.info(f"Cannot remove bg: {_src_path}, reason: {ext}")
+        return False
 
 
 def save_image(export_image: PILImage) -> str | bool:

@@ -30,3 +30,16 @@ class ResizeInput:
     save_extension: str = '.jpg'
     resample_mode: int = Image.Resampling.BICUBIC
     pad_color: tuple[int, ...] = (0, 0, 0, 0)
+
+@dataclass
+class RembgInput:
+    """
+    Container for background removal input parameters.
+
+    Attributes:
+        src_path (str): Path to the input image file.
+        calculation_device (str): Desired compute backend (e.g., 'cpu', 'cuda').
+                                  Currently not used but reserved for future support.
+    """
+    src_path: str = ''
+    calculation_device: str = ''
