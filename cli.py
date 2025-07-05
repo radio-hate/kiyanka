@@ -131,7 +131,7 @@ Example:
             <path_to_image> <edge_mode>
 
         - <edge_mode> must be either 'hard' or 'soft'
-        - 'soft' enables alpha matting for smoother edges (default)
+        - 'hard' enables alpha matting for smoother edges (default)
 
         Example:
             >> rembg C:/images/photo.jpg soft
