@@ -45,7 +45,7 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
         with Image.open(src_path) as src_image:
             logger.info(f'Imported image: {src_image.format}, {src_image.size}, {src_image.mode}')
             base_name: str = os.path.splitext(src_path)[0]
-            extention: str = save_extension
+            extension: str = save_extension
 
             # Resize logic per mode
             if resize_mode == 'thumbnail':
@@ -60,15 +60,15 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
             else:  # pad
                 if ((src_image.mode != "RGBA" and
                     pad_color [3] < 255) or
-                    extention.lower() in ('.jpg', '.jpeg', '.bmp', '.tiff', '.webp')
+                    extension.lower() in ('.jpg', '.jpeg', '.bmp', '.tiff', '.webp')
                     ):
                     src_image = src_image.convert("RGBA")
-                    extention: str = '.png'
+                    extension: str = '.png'
                     logger.info('Extension overridden to .png for transparent pad mode')
                 export_image = ImageOps.pad(src_image, out_size,color=pad_color, method=resample_mode)
 
             # Attach filename to image
-            export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}'+ f'_{resize_mode}' + extention
+            export_image.filename = base_name + f'_{export_image.size[0]}x{export_image.size[1]}'+ f'_{resize_mode}' + extension
             return export_image
 
     except (OSError, ValueError) as ext:
@@ -104,7 +104,7 @@ def rembg_processing(new_input: RembgInput) -> bool | PILImage:
     _background_color = new_input.background_color
     _force_return_bytes = new_input.force_return_bytes
 
-    base_name, extention = os.path.splitext(_src_path)
+    base_name, extension = os.path.splitext(_src_path)
 
     try:
         # Read input image in binary mode
@@ -128,16 +128,16 @@ def rembg_processing(new_input: RembgInput) -> bool | PILImage:
             export_image: PILImage = Image.open(io.BytesIO(image_without_bg))
 
             # Ensure RGBA mode for transparency
-            if (export_image.mode != "RGBA" or 
-                extention.lower() in ('.jpg', '.jpeg', '.bmp', '.tiff', '.webp')
+            if (export_image.mode != "RGBA" or
+                extension.lower() in ('.jpg', '.jpeg', '.bmp', '.tiff', '.webp')
                 ):
                 export_image = export_image.convert("RGBA")
-                extention: str = '.png'
+                extension: str = '.png'
                 logger.info('Extension overridden to .png for transparent background')
 
             # Attach output filename
             alpha_matting_mode_suffix:str = 'soft' if _alpha_matting else 'hard'
-            export_image.filename = base_name + '_no_bg_'+ alpha_matting_mode_suffix + extention
+            export_image.filename = base_name + '_no_bg_'+ alpha_matting_mode_suffix + extension
             return export_image
 
     except (OSError, ValueError) as ext:
