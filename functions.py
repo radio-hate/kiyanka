@@ -58,7 +58,10 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
             elif resize_mode == 'fit':
                 export_image = ImageOps.fit(src_image, out_size, method=resample_mode)
             else:  # pad
-                if src_image.mode != "RGBA" and pad_color [3] < 255:
+                if ((src_image.mode != "RGBA" and
+                    pad_color [3] < 255) or
+                    extention.lower() in ('.jpg', '.jpeg', '.bmp', '.tiff', '.webp')
+                    ):
                     src_image = src_image.convert("RGBA")
                     extention: str = '.png'
                     logger.info('Extension overridden to .png for transparent pad mode')
@@ -74,40 +77,67 @@ def resize_image ( new_input : ResizeInput) -> bool | PILImage:
 
 def rembg_processing(new_input: RembgInput) -> bool | PILImage:
     """
-    Removes background from an input image using rembg.
+    Removes the background from an image using the rembg library.
+    Supports both standard (hard edge) and alpha matting (soft edge) modes.
 
     Args:
-        new_input (RembgInput): Dataclass containing:
-            - src_path: path to source image file.
-            - calculation_device: 'cpu' or 'cuda' (currently unused).
+        new_input (RembgInput): Input parameters including:
+            - src_path (str): Path to source image.
+            - session: Optional model session object.
+            - alpha_matting (bool): Whether to use soft edge masking.
+            - alpha_matting_*: Various thresholds and settings for matting.
+            - background_color (tuple | None): Replace transparency with solid color.
+            - force_return_bytes (bool): Always return bytes (not used here).
 
     Returns:
-        PILImage: Image object with transparent background if successful.
+        PILImage: Processed image with transparent or solid background.
         bool: False if operation failed.
     """
     _src_path: str = new_input.src_path
-    _calculation_device: str = new_input.calculation_device  # Reserved for future device control
+    _calculation_device: str = new_input.src_path  # currently unused
+    _session = new_input.session
+    _alpha_matting = new_input.alpha_matting
+    _alpha_matting_foreground_threshold = new_input.alpha_matting_foreground_threshold
+    _alpha_matting_background_threshold = new_input.alpha_matting_background_threshold
+    _alpha_matting_erode_structure_size = new_input.alpha_matting_erode_structure_size
+    _alpha_matting_base_size = new_input.alpha_matting_base_size
+    _background_color = new_input.background_color
+    _force_return_bytes = new_input.force_return_bytes
+
     base_name, extention = os.path.splitext(_src_path)
 
     try:
-        # Read input image as binary
+        # Read input image in binary mode
         with open(_src_path, 'rb') as image_with_bg:
-            src_image: bytes = image_with_bg.read()
+            _src_image: bytes = image_with_bg.read()
 
-            # Run background removal
-            image_without_bg: bytes = remove(src_image)
+            # Perform background removal
+            image_without_bg: bytes = remove(
+                data=_src_image,
+                session=_session,
+                alpha_matting=_alpha_matting,
+                alpha_matting_foreground_threshold=_alpha_matting_foreground_threshold,
+                alpha_matting_background_threshold=_alpha_matting_background_threshold,
+                alpha_matting_erode_structure_size=_alpha_matting_erode_structure_size,
+                alpha_matting_base_size=_alpha_matting_base_size,
+                background_color=_background_color,
+                force_return_bytes=False  # always returns PIL.Image in this context
+            )
 
-            # Decode result from bytes to PIL Image
+            # Load result from bytes into a PIL Image
             export_image: PILImage = Image.open(io.BytesIO(image_without_bg))
 
-            # Ensure image has alpha channel for transparency
-            if export_image.mode != "RGBA":
+            # Ensure RGBA mode for transparency
+            if (export_image.mode != "RGBA" or 
+                extention.lower() in ('.jpg', '.jpeg', '.bmp', '.tiff', '.webp')
+                ):
                 export_image = export_image.convert("RGBA")
-                extention = '.png'
+                extention: str = '.png'
                 logger.info('Extension overridden to .png for transparent background')
 
-            # Set output filename
-            export_image.filename = base_name + '_no_bg' + extention
+            # Attach output filename
+            alpha_matting_mode_suffix:str = 'soft' if _alpha_matting else 'hard'
+            export_image.filename = base_name + '_no_bg_'+ alpha_matting_mode_suffix + extention
             return export_image
 
     except (OSError, ValueError) as ext:
@@ -126,6 +156,7 @@ def save_image(export_image: PILImage) -> str | bool:
         str: path where saved
         bool: False if error or no filename
     """
+    
     if not isinstance(export_image.filename, str) or not export_image.filename:
         return False
     try:

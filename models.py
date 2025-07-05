@@ -1,5 +1,5 @@
 """
-models.py — Data structures and constants for image resizing operations.
+models.py — Data structures and constants for image operations.
 """
 
 from PIL import Image, ImageDraw, ImageOps
@@ -34,12 +34,28 @@ class ResizeInput:
 @dataclass
 class RembgInput:
     """
-    Container for background removal input parameters.
+    Input container for background removal using the rembg library.
 
     Attributes:
         src_path (str): Path to the input image file.
-        calculation_device (str): Desired compute backend (e.g., 'cpu', 'cuda').
-                                  Currently not used but reserved for future support.
+        calculation_device (str): Device type for processing ('cpu', 'cuda').
+        session (any): Optional model session object (e.g. from new_session()).
+        alpha_matting (bool): Enables alpha matting for smoother edge blending.
+        alpha_matting_foreground_threshold (int): Pixel intensity threshold to consider as definite foreground.
+        alpha_matting_background_threshold (int): Pixel intensity threshold to consider as definite background.
+        alpha_matting_erode_structure_size (int): Size of the erosion structure applied in matting.
+        alpha_matting_base_size (int): Base resolution for alpha matting.
+        background_color (tuple | None): Solid background color (e.g. (255,255,255)) instead of transparency.
+        force_return_bytes (bool): If True, return raw bytes instead of a PIL.Image object.
     """
     src_path: str = ''
     calculation_device: str = ''
+    session: any = None
+    alpha_matting: bool = True
+    alpha_matting_foreground_threshold: int = 240
+    alpha_matting_background_threshold: int = 10
+    alpha_matting_erode_structure_size: int = 10
+    alpha_matting_base_size: int = 1000
+    background_color: tuple = None
+    force_return_bytes: bool = False
+

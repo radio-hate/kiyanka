@@ -1,13 +1,14 @@
 # Kiyanka
 
-Kiyanka is a Python-based CLI tool for resizing images with multiple strategies including padding, fitting, and cropping. Built on top of Pillow.
+Kiyanka is a Python-based CLI tool for image resizing and background removal using Pillow and rembg.
 
 ## Features
 
 - 5 resize modes (thumbnail, contain, cover, fit, pad)
-- Interactive command-line interface
-- Optional RGBA padding color
-- Easy installation via Poetry
+- Background removal using `rembg` (default mode: hard edges)
+- Optional RGBA padding color for pad mode
+- Interactive CLI
+- Easy setup via Poetry
 
 ## Resize Modes
 
@@ -21,35 +22,53 @@ ID | Mode       | Description
 
 ## Installation
 
-poetry config virtualenvs.in-project true  
+```bash
+poetry config virtualenvs.in-project true
 poetry install
+```
 
 ## Run
 
+```bash
 poetry run python main.py
+```
 
-## Example
+## Resize Example
 
+```bash
 >> resize C:/images/cat.jpg 512,512 2 .png
+```
 
-For padding mode (4), you'll be prompted to enter a color:  
+For padding mode (4), you'll be prompted to enter a color:
+
+```
 Enter pad color as R,G,B,A (e.g. 0,0,0,255): >> 255,255,255,255
+```
+
+## Background Removal Example
+
+```bash
+>> rembg C:/images/cat.jpg hard
+```
+
+Available edge modes: `soft` (alpha blend) or `hard` (binary mask).  
+Default: `hard`.
 
 ## Project Structure
 
-- main.py — Entry point, launches CLI
-- cli.py — Command parsing and interaction
-- logic.py — Controls image processing
-- functions.py — Image resize and save logic
-- models.py — Data class with input params and modes
+- `main.py` — Entry point, launches CLI
+- `cli.py` — Command parsing and interaction
+- `logic.py` — Controls image processing
+- `functions.py` — Image operations
+- `models.py` — Data classes and constants
 
 ## TODO
 
-- CLI help for each mode
-- Batch mode support
-- Auto-select output format from extension
+- GUI and context menu integration
+- Batch mode
 
 ## Requirements
 
-- Python 3.10.x
+- Python 3.10+
 - Pillow
+- rembg
