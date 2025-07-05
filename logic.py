@@ -5,7 +5,7 @@ logic.py — Core logic for processing images using user-defined parameters.
 from PIL import Image
 from PIL.Image import Image as PILImage
 from functions import *
-from models import ResizeInput
+from models import ResizeInput, RembgInput
 
 
 def resize_and_save(new_input: ResizeInput) -> str:
@@ -25,7 +25,9 @@ def resize_and_save(new_input: ResizeInput) -> str:
         str: Path to the saved output image.
     """
     # Perform resizing using logic layer
-    export_image: PILImage = resize_image(new_input)
+    export_image = resize_image(new_input)
+    if not isinstance(export_image, PILImage):
+        return ""
 
     # Save the processed image to disk
     save_image(export_image)
@@ -45,7 +47,9 @@ def rembg_and_save(new_input: RembgInput) -> str:
         str: Path to the saved output image.
     """
     # Run background removal and get processed image
-    export_image: PILImage = rembg_processing(new_input)
+    export_image = rembg_processing(new_input)
+    if not isinstance(export_image, PILImage):
+        return ""
 
     # Save image to disk using attached .filename
     save_image(export_image)

@@ -94,7 +94,7 @@ def rembg_processing(new_input: RembgInput) -> bool | PILImage:
         bool: False if operation failed.
     """
     _src_path: str = new_input.src_path
-    _calculation_device: str = new_input.src_path  # currently unused
+    _calculation_device: str = new_input.calculation_device  # currently unused
     _session = new_input.session
     _alpha_matting = new_input.alpha_matting
     _alpha_matting_foreground_threshold = new_input.alpha_matting_foreground_threshold
