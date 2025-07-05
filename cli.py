@@ -45,7 +45,7 @@ Available commands: resize, rembg, help, quit.
     4 pad()        - fit inside and pad remaining space
 
 - Format of the rembg command:
-  path [soft|hard]   # optional edge mode (default: soft)
+  path [soft|hard]   # optional edge mode (default: hard)
 
   Example:
     >> rembg C:/img.png soft
