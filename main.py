@@ -5,6 +5,7 @@ main.py — Entry point for the Kiyanka image resizer CLI tool.
 from PIL import Image  # Image module is used internally by logic, kept here for clarity
 import logging
 
+
 from models import *  # data classes and constants
 from cli import *     # CLI class for user interaction
 
