@@ -503,10 +503,8 @@ files = [
 
 [package.dependencies]
 numpy = [
-    {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
-    {version = ">=1.23.5", markers = "python_version == \"3.11\""},
-    {version = ">=1.21.4", markers = "python_version == \"3.10\" and platform_system == \"Darwin\""},
-    {version = ">=1.21.2", markers = "platform_system != \"Darwin\" and python_version == \"3.10\""},
+    {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\""},
+    {version = ">=1.21.2", markers = "platform_system != \"Darwin\" and python_version >= \"3.10\""},
 ]
 
 [[package]]
@@ -757,44 +755,11 @@ typing-extensions = {version = ">=4.4.0", markers = "python_version < \"3.13\""}
 
 [[package]]
 name = "rembg"
-version = "2.0.66"
-description = "Remove image background"
-optional = false
-python-versions = "<3.14,>=3.10"
-groups = ["main"]
-markers = "python_version < \"3.12\""
-files = [
-    {file = "rembg-2.0.66-py3-none-any.whl", hash = "sha256:ae13cb4f90b92f40c1f2dd5e8eb93cb65306bf6a51bc8e739fe6763004197efc"},
-    {file = "rembg-2.0.66.tar.gz", hash = "sha256:851068ab4ccc63a6abb49b3af73fdc667b71e35b6658633d13fd0748558fbd99"},
-]
-
-[package.dependencies]
-jsonschema = "*"
-numpy = "*"
-onnxruntime = {version = "*", optional = true, markers = "extra == \"cpu\""}
-opencv-python-headless = "*"
-pillow = "*"
-pooch = "*"
-pymatting = "*"
-scikit-image = "*"
-scipy = "*"
-tqdm = "*"
-
-[package.extras]
-cli = ["aiohttp", "asyncer", "click", "fastapi", "filetype", "gradio", "python-multipart", "uvicorn", "watchdog"]
-cpu = ["onnxruntime"]
-dev = ["bandit", "black", "flake8", "imagehash", "isort", "mypy", "pytest", "setuptools", "twine", "wheel"]
-gpu = ["onnxruntime-gpu"]
-rocm = ["onnxruntime-rocm"]
-
-[[package]]
-name = "rembg"
 version = "2.0.68"
 description = "Remove image background"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
-markers = "python_version >= \"3.12\""
 files = [
     {file = "rembg-2.0.68-py3-none-any.whl", hash = "sha256:41e333440b826637d8d0d2dae859dc696eec7209f2b6c7fe6aabb5520156b28b"},
     {file = "rembg-2.0.68.tar.gz", hash = "sha256:95c6971f2ef29a44d2cb6871b570c70941714ee27b313b66741c4e449c23b6ab"},
@@ -1179,7 +1144,6 @@ description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
-markers = "python_version < \"3.13\""
 files = [
     {file = "typing_extensions-4.14.1-py3-none-any.whl", hash = "sha256:d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"},
     {file = "typing_extensions-4.14.1.tar.gz", hash = "sha256:38b39f4aeeab64884ce9f74c94263ef78f3c22467c8724005483154c26648d36"},
@@ -1205,5 +1169,5 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.10,<3.15"
-content-hash = "6e59c298801ca4c1b535b75347c32457c36cd69cdf9a035c16a9fed2170817f4"
+python-versions = ">=3.10,<3.11"
+content-hash = "9f9d72df60efff079f4e6eb04a6ee1565dcf4fc99843a744720f585df5971748"
